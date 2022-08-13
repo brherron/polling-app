@@ -7,10 +7,13 @@ export const createContext = (opts?: trpcNext.CreateNextContextOptions) => {
   const req = opts?.req;
   const res = opts?.res;
 
+  console.log(opts?.req.cookies["poll-token"])
+
   return {
     req,
     res,
     prisma,
+    token: opts?.req.cookies["poll-token"],
   };
 };
 
