@@ -3,13 +3,20 @@
 
 generator client {
     provider = "prisma-client-js"
+    previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "mysql"
     url      = env("DATABASE_URL")
+    referentialIntegrity = "prisma"
 }
 
-model Example {
-    id String @id @default(cuid())
+model pollQuestion {
+    id          String      @id @default(cuid())
+    createdAt   DateTime    @default(now())
+    
+    endsAt DateTime? 
+
+    question String
 }
