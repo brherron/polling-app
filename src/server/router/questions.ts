@@ -4,9 +4,17 @@ import { z } from "zod";
 import { prisma } from "../db/client";
 
 export const questionRouter = createRouter()
-  .query("getAll", {
-    async resolve() {
-      return await prisma.pollQuestion.findMany();
+  .query("getAllMyQuestions", {
+    async resolve({ ctx }) {
+      if (!ctx.token) return [];
+
+      return await prisma.pollQuestion.findMany({
+        where: {
+          ownerToken: {
+            equals: ctx.token,
+          }
+        }
+      });
     },
   })
   .query("getById", {
@@ -27,6 +35,7 @@ export const questionRouter = createRouter()
     }),
     async resolve({ input, ctx }) {
       if (!ctx.token) return { error: "Unauthorized" }
+      
       return await prisma.pollQuestion.create({
         data: {
           question: input.question,

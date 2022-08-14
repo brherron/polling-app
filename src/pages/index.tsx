@@ -28,7 +28,7 @@ const QuestionCreator: React.FC = () => {
 }
 
 const Home: NextPage = (props: any) => {
-  const { data, isLoading } = trpc.useQuery(["questions.getAll"]);
+  const { data, isLoading } = trpc.useQuery(["questions.getAllMyQuestions"]);
 
   if (isLoading || !data) return <div>Loading...</div>
 
