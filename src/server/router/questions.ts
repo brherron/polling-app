@@ -2,6 +2,7 @@ import { createRouter } from "./context";
 import { z } from "zod";
 
 import { prisma } from "../db/client";
+import { createQuestionValidator } from "../../shared/create-question-validator";
 
 export const questionRouter = createRouter()
   .query("getAllMyQuestions", {
@@ -12,8 +13,8 @@ export const questionRouter = createRouter()
         where: {
           ownerToken: {
             equals: ctx.token,
-          }
-        }
+          },
+        },
       });
     },
   })
@@ -26,21 +27,19 @@ export const questionRouter = createRouter()
         },
       });
 
-      return { pollQuestion, isOwner: pollQuestion?.ownerToken === ctx.token}
+      return { pollQuestion, isOwner: pollQuestion?.ownerToken === ctx.token };
     },
   })
   .mutation("create", {
-    input: z.object({
-      question: z.string().min(5).max(600),
-    }),
+    input: createQuestionValidator,
     async resolve({ input, ctx }) {
-      if (!ctx.token) return { error: "Unauthorized" }
-      
+      if (!ctx.token) throw new Error("Unauthorized");
+
       return await prisma.pollQuestion.create({
         data: {
           question: input.question,
           options: [],
-          ownerToken: ctx.token
+          ownerToken: ctx.token,
         },
       });
     },
