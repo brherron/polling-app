@@ -34,10 +34,27 @@ export const questionRouter = createRouter()
         },
       });
 
-      return {
+      const rest = {
         pollQuestion,
-        isOwner: pollQuestion?.ownerToken === ctx.token,
         vote: myVote,
+        isOwner: pollQuestion?.ownerToken === ctx.token,
+      };
+
+      if (rest.vote || rest.isOwner) {
+        const votes = await prisma.vote.groupBy({
+          by: ["choice"],
+          _count: true,
+        });
+
+        return {
+          ...rest,
+          votes,
+        };
+      }
+
+      return {
+        ...rest,
+        votes: undefined,
       };
     },
   })

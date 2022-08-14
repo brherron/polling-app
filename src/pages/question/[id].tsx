@@ -7,7 +7,8 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
     { id },
   ]);
   const { mutate, data: voteResponse } = trpc.useMutation(
-    "questions.voteOnQuestion"
+    "questions.voteOnQuestion",
+    { onSuccess: () => window.location.reload() }
   );
 
   if (!isLoading && !data) {
@@ -23,7 +24,11 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
       <div className="flex flex-col gap-4">
         {(data?.pollQuestion?.options as string[])?.map((option, index) => {
           if (data?.isOwner || data?.vote) {
-            return <div>{(option as any).text}</div>;
+            return (
+              <div key={index}>
+                {data?.votes?.[index]?._count} - {(option as any).text}
+              </div>
+            );
           }
 
           return (
