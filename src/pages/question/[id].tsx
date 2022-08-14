@@ -11,7 +11,7 @@ const QuestionsPageContent: React.FC<{id: string}> = ({ id }) => {
 
   return (
     <div className="p-8 flex flex-col">
-      {data?.isOwner && <div className="bg-red-300 rounded-md p-4">You are the owner!</div>}
+      {data?.isOwner && <div className="bg-red-400 rounded-md p-4">You are the owner!</div>}
       <div className="text-2xl font-bold">
         {data?.pollQuestion?.question}
       </div>
