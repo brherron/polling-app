@@ -11,46 +11,45 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
     { onSuccess: () => window.location.reload() }
   );
 
-  if (!isLoading && !data) {
-    return <div>Question not found.</div>;
-  }
+  if (data && !isLoading)
+    return (
+      <div className="p-8 flex flex-col">
+        {data?.isOwner && (
+          <div className="bg-red-400 rounded-md p-4">You are the owner!</div>
+        )}
+        <div className="text-2xl font-bold">{data?.pollQuestion?.question}</div>
+        <div className="flex flex-col gap-4">
+          {(data?.pollQuestion?.options as string[])?.map((option, index) => {
+            if (data?.isOwner || data?.vote) {
+              return (
+                <div
+                  key={index}
+                  className={data?.vote?.choice == index ? "underline" : ""}
+                >
+                  {data?.votes?.[index]?._count ?? 0} - {(option as any).text}
+                </div>
+              );
+            }
 
-  return (
-    <div className="p-8 flex flex-col">
-      {data?.isOwner && (
-        <div className="bg-red-400 rounded-md p-4">You are the owner!</div>
-      )}
-      <div className="text-2xl font-bold">{data?.pollQuestion?.question}</div>
-      <div className="flex flex-col gap-4">
-        {(data?.pollQuestion?.options as string[])?.map((option, index) => {
-          if (data?.isOwner || data?.vote) {
             return (
-              <div
+              <button
                 key={index}
-                className={data?.vote?.choice == index ? "underline" : ""}
+                onClick={() =>
+                  mutate({
+                    questionId: data.pollQuestion!.id,
+                    option: index,
+                  })
+                }
               >
-                {data?.votes?.[index]?._count} - {(option as any).text}
-              </div>
+                {(option as any).text}
+              </button>
             );
-          }
-
-          return (
-            <button
-              key={index}
-              onClick={() =>
-                mutate({
-                  questionId: data.pollQuestion!.id,
-                  option: index,
-                })
-              }
-            >
-              {(option as any).text}
-            </button>
-          );
-        })}
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+
+  return <div>Question not found.</div>;
 };
 
 const QuestionPage = () => {
