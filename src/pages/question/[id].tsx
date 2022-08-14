@@ -56,7 +56,7 @@ const QuestionPage = () => {
   const { query } = useRouter();
   const { id } = query;
 
-  if (!id) {
+  if (!id || typeof id !== "string") {
     return <div>No ID</div>;
   }
 
