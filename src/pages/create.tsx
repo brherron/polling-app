@@ -42,10 +42,7 @@ const CreateQuestionForm = () => {
   return (
     <div className="antialiased text-gray-100 px-6">
       <div className="max-w-xl mx-auto py-12 md:max-w-4xl">
-        <h2 className="text-2xl font-bold">Reset styles</h2>
-        <p className="mt-2 text-lg text-gray-300">
-          These are form elements this plugin styles by default.
-        </p>
+        <h2 className="text-2xl font-bold">Create a poll</h2>
         <form
           onSubmit={handleSubmit((data) => {
             mutate(data);
@@ -94,6 +91,9 @@ const CreateQuestionForm = () => {
             >
               ADD
             </button>
+            {errors.options && (
+              <p className="text-red-400">{errors.options.message}</p>
+            )}
             <div className="grid grid-cols-2 gap-6 col-span-2">
               <button
                 type="submit"
