@@ -8,7 +8,7 @@ const QuestionCreator: React.FC = () => {
   const client = trpc.useContext();
   const { mutate, isLoading } = trpc.useMutation("questions.create", {
     onSuccess: (data) => {
-      client.invalidateQueries('questions.getAll');
+      client.invalidateQueries('questions.getAllMyQuestions');
     }
   })
 

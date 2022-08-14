@@ -3,6 +3,7 @@ import { trpc } from "../../utils/trpc";
 
 const QuestionsPageContent: React.FC<{id: string}> = ({ id }) => {
   const { data, isLoading, error } = trpc.useQuery(["questions.getById", { id }]);
+  let index = 0;
 
   if (!isLoading && !data) {
     return <div>Question not found.</div>
@@ -16,7 +17,7 @@ const QuestionsPageContent: React.FC<{id: string}> = ({ id }) => {
       </div>
       <div>
         {(data?.pollQuestion?.options as string[])?.map(option => (
-          <div>{option}</div>
+          <div key={index++}>{option}</div>
         ))}
       </div>
     </div>
