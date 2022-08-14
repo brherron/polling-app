@@ -1,7 +1,7 @@
 import React from "react";
 import { trpc } from "../utils/trpc";
 
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateQuestionInputType,
@@ -15,16 +15,25 @@ const CreateQuestionForm = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    control,
     formState: { errors },
   } = useForm<CreateQuestionInputType>({
     resolver: zodResolver(createQuestionValidator),
+    defaultValues: {
+      options: [{ text: "Yes" }, { text: "No" }],
+    },
   });
+
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
+    {
+      name: "options",
+      control,
+    }
+  );
 
   const { mutate, isLoading, data } = trpc.useMutation("questions.create", {
     onSuccess: (data) => {
       router.push(`/question/${data.id}`);
-      reset();
     },
   });
 
@@ -57,6 +66,34 @@ const CreateQuestionForm = () => {
             {errors.question && (
               <p className="text-red-400">{errors.question.message}</p>
             )}
+            {fields.map((field, index) => {
+              return (
+                <div key={field.id}>
+                  <section className={"section"} key={field.id}>
+                    <input
+                      placeholder="name"
+                      {...register(`options.${index}.text` as const, {
+                        required: true,
+                      })}
+                      className="form-input mt-1 block w-full text-gray-800 py-1 px-3"
+                    />
+                    <button type="button" onClick={() => remove(index)}>
+                      DELETE
+                    </button>
+                  </section>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() =>
+                append({
+                  text: "Another option",
+                })
+              }
+            >
+              ADD
+            </button>
             <div className="grid grid-cols-2 gap-6 col-span-2">
               <button
                 type="submit"
