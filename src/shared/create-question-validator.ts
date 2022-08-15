@@ -5,7 +5,8 @@ export const createQuestionValidator = z.object({
   options: z
     .array(z.object({ text: z.string().min(1).max(200) }))
     .min(2)
-    .max(10),
+    .max(8),
+  endingTime: z.date().optional(),
 });
 
 export type CreateQuestionInputType = z.infer<typeof createQuestionValidator>;

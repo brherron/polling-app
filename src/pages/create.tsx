@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { trpc } from "../utils/trpc";
 
 import { useFieldArray, useForm } from "react-hook-form";
@@ -8,9 +8,11 @@ import {
   createQuestionValidator,
 } from "../shared/create-question-validator";
 import { useRouter } from "next/router";
+import Spinner from "../components/Spinner";
 
 const CreateQuestionForm = () => {
   const router = useRouter();
+  const [endingTime, setEndingTime] = useState(0);
 
   const {
     register,
@@ -20,42 +22,58 @@ const CreateQuestionForm = () => {
   } = useForm<CreateQuestionInputType>({
     resolver: zodResolver(createQuestionValidator),
     defaultValues: {
-      options: [{ text: "Yes" }, { text: "No" }],
+      options: [{ text: "Green Bay Packers" }, { text: "Pittsburg Steelers" }],
     },
   });
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      name: "options",
-      control,
-    }
-  );
+  const { fields, append, remove } = useFieldArray({
+    name: "options",
+    control,
+  });
 
   const { mutate, isLoading, data } = trpc.useMutation("questions.create", {
     onSuccess: (data) => {
       router.push(`/question/${data.id}`);
     },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 
-  if (isLoading || data) return <div>Loading...</div>;
+  const onBack = () => {
+    router.push("/");
+  };
+
+  if (isLoading || data) return <Spinner />;
 
   return (
-    <div className="antialiased text-gray-100 px-6">
-      <div className="max-w-xl mx-auto py-12 md:max-w-4xl">
-        <h2 className="text-2xl font-bold">Create a poll</h2>
+    <div className="antialiased my-12">
+      <div className="max-w-xl mx-auto md:max-w-4xl">
+        <div className="text-5xl font-bold">Create Poll</div>
         <form
-          onSubmit={handleSubmit((data) => {
-            mutate(data);
+          onSubmit={handleSubmit(async (data) => {
+            try {
+              if (endingTime > 0) {
+                const endingDate = new Date();
+                endingDate.setHours(endingDate.getHours() + endingTime);
+
+                data.endingTime = endingDate;
+              }
+
+              await mutate(data);
+            } catch (error) {
+              console.log(error);
+            }
           })}
         >
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <div className="grid grid-cols-1 gap-6 col-span-2">
+          <div className="mt-8 grid grid-cols-1 items-start">
+            <div className="grid grid-cols-1">
               <label className="block">
-                <span className="text-gray-200">Question</span>
+                <div className="text-xl my-2 text-gray-600">Question</div>
                 <input
                   {...register("question")}
                   type="text"
-                  className="form-input text-sm rounded text-gray-800 px-4 py-2 mt-1 block w-full"
+                  className="form-input text-sm rounded border-2 border-gray-300 text-gray-800 px-4 py-2 mt-1 block w-full"
                   placeholder="Who won Super Bowl XLV?"
                 />
               </label>
@@ -63,41 +81,110 @@ const CreateQuestionForm = () => {
             {errors.question && (
               <p className="text-red-400">{errors.question.message}</p>
             )}
-            {fields.map((field, index) => {
-              return (
-                <div key={field.id}>
-                  <section className={"section"} key={field.id}>
-                    <input
-                      placeholder="name"
-                      {...register(`options.${index}.text` as const, {
-                        required: true,
-                      })}
-                      className="form-input mt-1 block w-full text-gray-800 py-1 px-3"
-                    />
-                    <button type="button" onClick={() => remove(index)}>
-                      DELETE
-                    </button>
-                  </section>
-                </div>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() =>
-                append({
-                  text: "Another option",
-                })
-              }
-            >
-              ADD
-            </button>
-            {errors.options && (
-              <p className="text-red-400">{errors.options.message}</p>
-            )}
-            <div className="grid grid-cols-2 gap-6 col-span-2">
+            <div className="mt-6 flex flex-col">
+              <div className="text-xl my-2 text-gray-600">Expiration</div>
+              <div className="w-1/2 grid grid-cols-4">
+                <button
+                  type="button"
+                  className={`text-sm rounded py-2 px-4 mr-2 font-bold transition uppercase ${
+                    endingTime === 4
+                      ? "bg-[#888fd2]/60 text-white"
+                      : "bg-gray-100 hover:bg-gray-100 text-gray-800"
+                  }`}
+                  onClick={() => setEndingTime(4)}
+                >
+                  4h
+                </button>
+                <button
+                  type="button"
+                  className={`text-sm rounded py-2 px-4 mr-2 font-bold transition uppercase ${
+                    endingTime === 8
+                      ? "bg-[#888fd2]/60 text-white"
+                      : "bg-gray-100 hover:bg-gray-100 text-gray-800"
+                  }`}
+                  onClick={() => setEndingTime(8)}
+                >
+                  8h
+                </button>
+                <button
+                  type="button"
+                  className={`text-sm rounded py-2 px-4 mr-2 font-bold transition uppercase ${
+                    endingTime === 12
+                      ? "bg-[#888fd2]/60 text-white"
+                      : "bg-gray-100 hover:bg-gray-100 text-gray-800"
+                  }`}
+                  onClick={() => setEndingTime(12)}
+                >
+                  12h
+                </button>
+                <button
+                  type="button"
+                  className={`text-sm rounded py-2 px-4 mr-2 font-bold transition uppercase ${
+                    endingTime === 24
+                      ? "bg-[#888fd2]/60 text-white"
+                      : "bg-gray-100 hover:bg-gray-100 text-gray-800"
+                  }`}
+                  onClick={() => setEndingTime(24)}
+                >
+                  24h
+                </button>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col w-1/2">
+              <div className="text-xl my-2 text-gray-600">Include Options</div>
+              {fields.map((field, index) => {
+                return (
+                  <div key={field.id} className="transition">
+                    <section
+                      className="section flex items-center gap-2"
+                      key={field.id}
+                    >
+                      <input
+                        placeholder="name"
+                        {...register(`options.${index}.text` as const, {
+                          required: true,
+                        })}
+                        className="form-input text-sm rounded border-2 border-gray-300 text-gray-800 px-4 py-2 mt-1 block w-full"
+                      />
+                      <button
+                        className="flex justify-center items-center bg-gray-200 hover:bg-red-200 p-1 w-6 aspect-square rounded-full text-xs text-white font-bold transition"
+                        type="button"
+                        onClick={() => remove(index)}
+                      >
+                        X
+                      </button>
+                    </section>
+                  </div>
+                );
+              })}
+              {fields.length < 8 && (
+                <button
+                  className="text-2xl my-4 text-gray-600 transition"
+                  type="button"
+                  onClick={() =>
+                    append({
+                      text: "Another option",
+                    })
+                  }
+                >
+                  +
+                </button>
+              )}
+              {errors.options && (
+                <p className="text-red-400">{errors.options.message}</p>
+              )}
+            </div>
+            <div className="flex my-8">
+              <button
+                type="button"
+                className="form-input text-sm text-gray-800 rounded bg-gray-100 py-2 px-4 mr-2 hover:bg-gray-100 font-bold transition"
+                onClick={onBack}
+              >
+                BACK
+              </button>
               <button
                 type="submit"
-                className="form-input text-sm text-gray-900 rounded bg-gray-400 p-2 hover:bg-gray-100 transition"
+                className="form-input text-sm text-white rounded bg-[#888fd2]/60 py-2 px-4 mr-2 hover:bg-gray-100 font-bold transition"
               >
                 CREATE
               </button>

@@ -47,3 +47,14 @@ model Vote {
     @@index([voterToken])
     @@index([questionId])
 }
+
+// model Option {
+//     id      Int     @id @default(autoincrement())
+//     text    String
+
+//     question PollQuestion @relation(fields: [questionId], references: [id])
+//     questionId  String
+
+//     @@unique([questionId])
+//     @@index([questionId])
+// }
