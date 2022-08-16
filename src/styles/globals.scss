@@ -17,13 +17,13 @@ body {
 
 .main-app {
   position: relative;
-  overflow: hidden;
 }
 
 .left-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   overflow: hidden;
 
   .title {
@@ -35,20 +35,17 @@ body {
     padding-bottom: 30%;
 
     h1 {
-      font-size: 108px;
       z-index: 99;
       padding: 0;
       margin: 0;
-      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.175);
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     h2 {
-      width: 65%;
-      font-size: 16px;
       padding-left: 0.5rem;
 
       a {
-        color: blue;
+        color: rgb(135, 135, 255);
       }
     }
   }
@@ -59,7 +56,21 @@ body {
     border-bottom-left-radius: 50% 100%;
     border-top-left-radius: 50% 100%;
     bottom: -50%;
-    left: 40%;
+    left: 85%;
+    transform: rotate(5deg);
+    z-index: 2;
+    width: 150%;
+    background-color: rgb(232, 232, 232);
+    height: 200%;
+  }
+
+  &::after {
+    position: absolute;
+    content: '';
+    border-bottom-left-radius: 50% 100%;
+    border-top-left-radius: 50% 100%;
+    bottom: -50%;
+    left: 88%;
     z-index: 2;
     width: 150%;
     background-color: #fff;
@@ -76,13 +87,22 @@ body {
     top: 0;
   
     path {
-      fill: #a1c6cc;
+      fill: #788c8f6b;
     }
   }
 }
 
 .right-container {
   z-index: 3;
+  border: none;
+
+  .owner-top {
+    display: none;
+  }
+
+  .owner-side {
+    display: block;
+  }
 }
 
 .poll-result {
@@ -187,5 +207,39 @@ body {
     opacity: 1;
     -webkit-transform: translateX(0px);
     transform: translateX(0px);
+  }
+}
+
+@media (max-width: 1023px) { 
+  .left-container {
+    &::before {
+      border-top-left-radius: 100% 100%;
+      border-top-right-radius: 100% 100%;
+      left: -25%;
+      bottom: -10%;
+      width: 150%;
+      height: 40%;
+    }
+
+    &::after {
+      border-top-left-radius: 100% 100%;
+      border-top-right-radius: 100% 100%;
+      bottom: -20%;
+      left: -25%;
+      width: 150%;
+      height: 40%;
+    }
+  }
+}
+
+@media (max-width: 1279px) {
+  .right-container {
+    .owner-side {
+      display: none;
+    }
+
+    .owner-top {
+      display: block;
+    }
   }
 }

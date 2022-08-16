@@ -6,6 +6,7 @@ import { trpc } from "../utils/trpc";
 
 const Home: NextPage = (props: any) => {
   const { data, isLoading } = trpc.useQuery(["questions.getAllMyQuestions"]);
+
   const options = { year: "numeric", month: "short", day: "numeric" };
 
   data?.sort((a, b) => {
@@ -15,11 +16,11 @@ const Home: NextPage = (props: any) => {
   if (!data || isLoading) return <Spinner />;
 
   return (
-    <div className="my-12">
-      <div className="header flex w-full justify-between items-end mb-12">
-        <div className="text-5xl font-bold">Your Polls</div>
+    <div className="md:my-6">
+      <div className="header flex w-full justify-between items-end mb-6 md:mb-12">
+        <div className="text-3xl xl:text-5xl font-bold">Your Polls</div>
         <Link href="/create">
-          <a className="bg-[#888fd2]/60 hover:bg-[#888fd2]/30 transition rounded text-white font-bold px-4 py-2">
+          <a className="bg-[#888fd2]/60 hover:bg-[#888fd2]/30 transition rounded text-white font-bold p-2">
             Add Poll
           </a>
         </Link>
@@ -27,7 +28,7 @@ const Home: NextPage = (props: any) => {
       {data.length === 0 && (
         <div className="text-gray-600">No polls found.</div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-4">
         {data.map((question) => {
           let expired = false;
           let timeRemaining = question.endsAt

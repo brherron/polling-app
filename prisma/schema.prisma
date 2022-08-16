@@ -2,59 +2,60 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
-    previewFeatures = ["referentialIntegrity"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-    referentialIntegrity = "prisma"
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Example {
-    id String @id @default(cuid())
+  id String @id @default(cuid())
 }
 
 model PollQuestion {
-    id          String      @id @default(cuid())
-    createdAt   DateTime    @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
-    endsAt      DateTime? 
-    
-    question    String      @db.VarChar(5000)
+  endsAt DateTime?
 
-    ownerToken  String      @db.VarChar(255)
+  question String @db.VarChar(5000)
 
-    options     Json
-    Vote        Vote[]
+  ownerToken String @db.VarChar(255)
 
-    @@index([ownerToken])
+  options Option[]
+  Vote    Vote[]
+
+  @@index([ownerToken])
 }
 
 model Vote {
-    id          String          @id @default(cuid())
-    createdAt   DateTime        @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
-    choice      Int
+  voterToken String @db.VarChar(255)
 
-    voterToken  String          @db.VarChar(255)
-    
-    question    PollQuestion    @relation(fields: [questionId], references: [id])
-    questionId  String
+  choice     Option       @relation(fields: [choiceId], references: [id])
+  choiceId   Int
+  question   PollQuestion @relation(fields: [questionId], references: [id])
+  questionId String
 
-    @@unique([voterToken, questionId])
-    @@index([voterToken])
-    @@index([questionId])
+  @@unique([voterToken, questionId])
+  @@index([voterToken])
+  @@index([questionId])
 }
 
-// model Option {
-//     id      Int     @id @default(autoincrement())
-//     text    String
+model Option {
+  id   Int    @id @default(autoincrement())
+  text String
 
-//     question PollQuestion @relation(fields: [questionId], references: [id])
-//     questionId  String
+  question   PollQuestion @relation(fields: [questionId], references: [id])
+  questionId String
+  Vote       Vote[]
 
-//     @@unique([questionId])
-//     @@index([questionId])
-// }
+  @@index([id])
+  @@index([questionId])
+}

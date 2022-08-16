@@ -38,17 +38,18 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   }
 
   return (
-    <div className="main-app flex w-screen h-screen">
-      <div className="w-full p-12 bg-[#888fd2] grid grid-cols-1 lg:grid-cols-2">
-        <div className="left-container rain h-full">
+    <div className="main-app flex w-screen lg:h-screen h-auto">
+      <div className="w-full bg-[#484b60] grid grid-cols-1 lg:grid-cols-2">
+        <div className="left-container p-12 rain h-full">
           {rainArray.map((r) => r)}
           <div className="title">
             <Link href="/">
-              <h1 className="font-bold text-gray-100 cursor-pointer">
-                Downpoll<span className="text-8xl">.</span>
+              <h1 className="font-bold xl:text-[108px] md:text-[92px] text-[64px] text-gray-100 hover:text-gray-300 transition cursor-pointer">
+                Downpoll
+                <span className="text-6xl md:text-7xl xl:text-8xl">.</span>
               </h1>
             </Link>
-            <h2 className="text-gray-800">
+            <h2 className="text-[12px] md:text-[16px] text-gray-300 lg:w-3/5 w-4/5">
               <span>
                 I&apos;m forcing this name because I want to use this epic css
                 background made by{" "}
@@ -64,7 +65,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
             </h2>
           </div>
         </div>
-        <div className="right-container max-h-screen p-12 flex flex-col items-stretch bg-white">
+        <div className="right-container max-h-screen p-6 md:px-12 md:py-24 xl:px-24 flex flex-col items-stretch bg-white">
           <Component {...pageProps} />
         </div>
       </div>

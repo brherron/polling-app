@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import Spinner from "../../components/Spinner";
-import { questionRouter } from "../../server/router/questions";
 import { trpc } from "../../utils/trpc";
 
 const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
@@ -8,12 +7,13 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
     "questions.getById",
     { id },
   ]);
+
   const { mutate, data: voteResponse } = trpc.useMutation(
     "questions.voteOnQuestion",
     { onSuccess: () => window.location.reload() }
   );
 
-  if (isLoading && data) return <Spinner />;
+  if (isLoading || !data) return <Spinner />;
 
   if (data && !isLoading) {
     let totalVotes = 0;
@@ -26,13 +26,18 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
       : 0;
 
     return (
-      <div className="p-8 flex flex-col slide-in max-h-full min-h-full">
+      <div className="md:p-8 flex flex-col slide-in max-h-full min-h-full">
+        {data?.isOwner && (
+          <div className="owner-top bg-red-200 w-auto mb-2 self-start rounded-md px-3 py-1 text-white font-bold uppercase">
+            Owner
+          </div>
+        )}
         <div className="flex justify-between items-start">
           <div className="text-2xl font-bold">
             {data?.pollQuestion?.question}
           </div>
           {data?.isOwner && (
-            <div className="bg-red-200 rounded-md px-3 py-1 ml-4 text-white font-bold uppercase">
+            <div className="owner-side bg-red-200 rounded-md px-3 py-1 ml-4 text-white font-bold uppercase">
               Owner
             </div>
           )}
@@ -45,7 +50,9 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
         <div className="flex-1 flex flex-col gap-4 mt-12">
           <div className="flex justify-between">
             <div className="text-md text-gray-500">
-              {data?.isOwner || data?.vote ? "Poll Results" : "Select One"}
+              {data?.isOwner || data?.vote
+                ? "Poll Results"
+                : "Choose an option:"}
             </div>
             {(data?.vote || data?.isOwner) && (
               <div className="text-md text-gray-500">
@@ -55,53 +62,54 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
           </div>
           <div className="max-h-[100%] overflow-y-scroll">
             <div className="flex flex-col gap-2">
-              {(data?.pollQuestion?.options as string[])?.map(
-                (option, index) => {
-                  if (data?.isOwner || data?.vote) {
-                    return (
-                      <div
-                        key={index}
-                        className="poll-result slide-in flex justify-between bg-gray-200 rounded px-4 py-2"
-                        style={{
-                          animationDelay: `${index * 0.15 + 0.5}s`,
-                          fontWeight:
-                            data.vote?.choice === index ? "700" : "300",
-                        }}
-                      >
-                        <div
-                          className="width"
-                          style={{
-                            width: `${
-                              ((data?.votes?.[index]?._count ?? 0) * 100) /
-                              totalVotes
-                            }%`,
-                          }}
-                        ></div>
-                        <div>{(option as any).text}</div>
-                        <div>{data?.votes?.[index]?._count ?? 0} votes</div>
-                      </div>
-                    );
-                  }
+              {data?.options.map((option, index) => {
+                if (data?.isOwner || data?.vote) {
+                  const votes = data.votes?.find(
+                    (v) => v.choiceId === option.id
+                  );
 
                   return (
-                    <button
+                    <div
                       key={index}
                       className="poll-result slide-in flex justify-between bg-gray-200 rounded px-4 py-2"
                       style={{
                         animationDelay: `${index * 0.15 + 0.5}s`,
-                      }}
-                      onClick={() => {
-                        mutate({
-                          questionId: data.pollQuestion!.id,
-                          option: index,
-                        });
+                        fontWeight:
+                          data.vote?.choiceId === option.id ? "700" : "300",
                       }}
                     >
-                      {(option as any).text}
-                    </button>
+                      <div
+                        className="width"
+                        style={{
+                          width: `${
+                            ((votes?._count || 0) * 100) / totalVotes
+                          }%`,
+                        }}
+                      ></div>
+                      <div>{option.text}</div>
+                      <div>{votes?._count || 0} votes</div>
+                    </div>
                   );
                 }
-              )}
+
+                return (
+                  <button
+                    key={index}
+                    className="poll-result slide-in flex justify-between bg-gray-200 rounded px-4 py-2"
+                    style={{
+                      animationDelay: `${index * 0.15 + 0.5}s`,
+                    }}
+                    onClick={() => {
+                      mutate({
+                        questionId: data.pollQuestion!.id,
+                        option: option.id,
+                      });
+                    }}
+                  >
+                    {option.text}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

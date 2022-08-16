@@ -22,7 +22,7 @@ const CreateQuestionForm = () => {
   } = useForm<CreateQuestionInputType>({
     resolver: zodResolver(createQuestionValidator),
     defaultValues: {
-      options: [{ text: "Green Bay Packers" }, { text: "Pittsburg Steelers" }],
+      options: [{ text: "" }, { text: "" }],
     },
   });
 
@@ -32,8 +32,8 @@ const CreateQuestionForm = () => {
   });
 
   const { mutate, isLoading, data } = trpc.useMutation("questions.create", {
-    onSuccess: (data) => {
-      router.push(`/question/${data.id}`);
+    onSuccess: (id) => {
+      router.push(`/question/${id}`);
     },
     onError: (error) => {
       console.log(error);
@@ -47,9 +47,9 @@ const CreateQuestionForm = () => {
   if (isLoading || data) return <Spinner />;
 
   return (
-    <div className="antialiased my-12">
+    <div className="antialiased md:my-12">
       <div className="max-w-xl mx-auto md:max-w-4xl">
-        <div className="text-5xl font-bold">Create Poll</div>
+        <div className="text-4xl md:text-5xl font-bold">Create Poll</div>
         <form
           onSubmit={handleSubmit(async (data) => {
             try {
@@ -74,7 +74,7 @@ const CreateQuestionForm = () => {
                   {...register("question")}
                   type="text"
                   className="form-input text-sm rounded border-2 border-gray-300 text-gray-800 px-4 py-2 mt-1 block w-full"
-                  placeholder="Who won Super Bowl XLV?"
+                  placeholder="What is your favorite NFL team?"
                 />
               </label>
             </div>
@@ -83,7 +83,7 @@ const CreateQuestionForm = () => {
             )}
             <div className="mt-6 flex flex-col">
               <div className="text-xl my-2 text-gray-600">Expiration</div>
-              <div className="w-1/2 grid grid-cols-4">
+              <div className="md:w-1/2 grid grid-cols-4">
                 <button
                   type="button"
                   className={`text-sm rounded py-2 px-4 mr-2 font-bold transition uppercase ${
@@ -91,7 +91,7 @@ const CreateQuestionForm = () => {
                       ? "bg-[#888fd2]/60 text-white"
                       : "bg-gray-100 hover:bg-gray-100 text-gray-800"
                   }`}
-                  onClick={() => setEndingTime(4)}
+                  onClick={() => setEndingTime(endingTime === 4 ? 0 : 4)}
                 >
                   4h
                 </button>
@@ -102,7 +102,7 @@ const CreateQuestionForm = () => {
                       ? "bg-[#888fd2]/60 text-white"
                       : "bg-gray-100 hover:bg-gray-100 text-gray-800"
                   }`}
-                  onClick={() => setEndingTime(8)}
+                  onClick={() => setEndingTime(endingTime === 8 ? 0 : 8)}
                 >
                   8h
                 </button>
@@ -113,7 +113,7 @@ const CreateQuestionForm = () => {
                       ? "bg-[#888fd2]/60 text-white"
                       : "bg-gray-100 hover:bg-gray-100 text-gray-800"
                   }`}
-                  onClick={() => setEndingTime(12)}
+                  onClick={() => setEndingTime(endingTime === 12 ? 0 : 12)}
                 >
                   12h
                 </button>
@@ -124,13 +124,16 @@ const CreateQuestionForm = () => {
                       ? "bg-[#888fd2]/60 text-white"
                       : "bg-gray-100 hover:bg-gray-100 text-gray-800"
                   }`}
-                  onClick={() => setEndingTime(24)}
+                  onClick={() => setEndingTime(endingTime === 24 ? 0 : 24)}
                 >
                   24h
                 </button>
               </div>
             </div>
-            <div className="mt-6 flex flex-col w-1/2">
+            {errors.endingTime && (
+              <p className="text-red-400">{errors.endingTime.message}</p>
+            )}
+            <div className="mt-6 flex flex-col md:w-1/2">
               <div className="text-xl my-2 text-gray-600">Include Options</div>
               {fields.map((field, index) => {
                 return (
@@ -140,35 +143,38 @@ const CreateQuestionForm = () => {
                       key={field.id}
                     >
                       <input
-                        placeholder="name"
-                        {...register(`options.${index}.text` as const, {
+                        placeholder={"Option " + (index + 1)}
+                        {...register(`options.${index}.text`, {
                           required: true,
                         })}
                         className="form-input text-sm rounded border-2 border-gray-300 text-gray-800 px-4 py-2 mt-1 block w-full"
                       />
                       <button
-                        className="flex justify-center items-center bg-gray-200 hover:bg-red-200 p-1 w-6 aspect-square rounded-full text-xs text-white font-bold transition"
+                        className="flex justify-center items-center hover:bg-red-200 hover:text-white pb-1 px-3 aspect-square rounded-full text-2xl text-gray-300 font-bold transition"
                         type="button"
                         onClick={() => remove(index)}
                       >
-                        X
+                        -
                       </button>
                     </section>
                   </div>
                 );
               })}
               {fields.length < 8 && (
-                <button
-                  className="text-2xl my-4 text-gray-600 transition"
-                  type="button"
-                  onClick={() =>
-                    append({
-                      text: "Another option",
-                    })
-                  }
-                >
-                  +
-                </button>
+                <div className="flex justify-center my-2">
+                  <button
+                    className="text-2xl font-bold pb-1 px-4 text-gray-600 hover:bg-gray-200 rounded transition"
+                    type="button"
+                    onClick={() =>
+                      append({
+                        text: "",
+                        questionId: "",
+                      })
+                    }
+                  >
+                    +
+                  </button>
+                </div>
               )}
               {errors.options && (
                 <p className="text-red-400">{errors.options.message}</p>

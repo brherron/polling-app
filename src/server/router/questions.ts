@@ -21,9 +21,15 @@ export const questionRouter = createRouter()
   .query("getById", {
     input: z.object({ id: z.string() }),
     async resolve({ input, ctx }) {
-      const pollQuestion = await prisma.pollQuestion.findFirst({
+      const pollQuestion = await prisma.pollQuestion.findUnique({
         where: {
           id: input.id,
+        },
+      });
+
+      const options = await prisma.option.findMany({
+        where: {
+          questionId: input.id,
         },
       });
 
@@ -36,6 +42,7 @@ export const questionRouter = createRouter()
 
       const rest = {
         pollQuestion,
+        options,
         vote: myVote,
         isOwner: pollQuestion?.ownerToken === ctx.token,
       };
@@ -43,7 +50,7 @@ export const questionRouter = createRouter()
       if (rest.vote || rest.isOwner) {
         const votes = await prisma.vote.groupBy({
           where: { questionId: input.id },
-          by: ["choice"],
+          by: ["choiceId"],
           _count: true,
         });
 
@@ -70,7 +77,7 @@ export const questionRouter = createRouter()
       return await prisma.vote.create({
         data: {
           questionId: input.questionId,
-          choice: input.option,
+          choiceId: input.option,
           voterToken: ctx.token,
         },
       });
@@ -81,13 +88,25 @@ export const questionRouter = createRouter()
     async resolve({ input, ctx }) {
       if (!ctx.token) throw new Error("Unauthorized");
 
-      return await prisma.pollQuestion.create({
+      const question = await prisma.pollQuestion.create({
         data: {
           question: input.question,
-          options: input.options,
           endsAt: input.endingTime,
           ownerToken: ctx.token,
         },
       });
+
+      const optionData = input.options.map((option) => {
+        return {
+          text: option.text,
+          questionId: question.id,
+        };
+      });
+
+      await prisma.option.createMany({
+        data: [...optionData],
+      });
+
+      return question.id;
     },
   });
