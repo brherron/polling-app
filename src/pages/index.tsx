@@ -1,8 +1,11 @@
 import type { NextPage } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import Spinner from "../components/Spinner";
 import { trpc } from "../utils/trpc";
+
+import ShareIcon from "../../public/share.svg";
 
 const Home: NextPage = (props: any) => {
   const { data, isLoading } = trpc.useQuery(["questions.getAllMyQuestions"]);
@@ -43,18 +46,40 @@ const Home: NextPage = (props: any) => {
             <Link href={`/question/${question.id}`} key={question.id}>
               <div
                 key={question.id}
-                className="flex flex-col my-2 cursor-pointer bg-gray-100 hover:bg-gray-300 rounded p-4 transition"
+                className="flex flex-col my-2 cursor-pointer bg-gray-100 hover:bg-gray-200 rounded p-2 pl-4 pb-4 transition"
                 style={{
                   opacity: expired ? "0.4" : "1",
                   pointerEvents: expired ? "none" : "auto",
                 }}
               >
-                <span className="text-xs text-gray-400">
-                  {question.createdAt.toLocaleDateString(
-                    "en-US",
-                    options as any
-                  )}
-                </span>
+                <div className="flex justify-between items-end">
+                  <span className="text-xs text-gray-400">
+                    {question.createdAt.toLocaleDateString(
+                      "en-US",
+                      options as any
+                    )}
+                  </span>
+                  <button
+                    className="flex justify-center items-center hover:bg-gray-300 transition rounded"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert(
+                        `Share this link: ${
+                          process.env.VERCEL_URL
+                            ? "https://" + process.env.VERCEL_URL
+                            : "http://localhost:3000"
+                        }/question/${question.id}`
+                      );
+                    }}
+                  >
+                    <Image
+                      src={ShareIcon}
+                      alt="share"
+                      width="24px"
+                      height="24px"
+                    />
+                  </button>
+                </div>
                 <div className="text-xl font-bold my-4">
                   {question.question}
                 </div>
