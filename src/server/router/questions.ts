@@ -69,7 +69,7 @@ export const questionRouter = createRouter()
   .mutation("voteOnQuestion", {
     input: z.object({
       questionId: z.string(),
-      option: z.number().min(0).max(10),
+      optionId: z.number(),
     }),
     async resolve({ input, ctx }) {
       if (!ctx.token) throw new Error("Unauthorized");
@@ -77,7 +77,7 @@ export const questionRouter = createRouter()
       return await prisma.vote.create({
         data: {
           questionId: input.questionId,
-          choiceId: input.option,
+          choiceId: input.optionId,
           voterToken: ctx.token,
         },
       });

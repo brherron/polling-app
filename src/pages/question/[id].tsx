@@ -10,7 +10,10 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
 
   const { mutate, data: voteResponse } = trpc.useMutation(
     "questions.voteOnQuestion",
-    { onSuccess: () => window.location.reload() }
+    {
+      onSuccess: () => window.location.reload(),
+      onError: (error) => console.log(error),
+    }
   );
 
   if (isLoading || !data) return <Spinner />;
@@ -102,7 +105,7 @@ const QuestionsPageContent: React.FC<{ id: string }> = ({ id }) => {
                     onClick={() => {
                       mutate({
                         questionId: data.pollQuestion!.id,
-                        option: option.id,
+                        optionId: option.id,
                       });
                     }}
                   >
