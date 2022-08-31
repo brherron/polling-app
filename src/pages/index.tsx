@@ -64,11 +64,7 @@ const Home: NextPage = (props: any) => {
                     onClick={(e) => {
                       e.preventDefault();
                       alert(
-                        `Share this link: ${
-                          process.env.PUBLIC_URL
-                            ? "https://" + process.env.PUBLIC_URL
-                            : "http://localhost:3000"
-                        }/question/${question.id}`
+                        `Share this link: https://downpoll.beauherrondev.com/question/${question.id}`
                       );
                     }}
                   >
