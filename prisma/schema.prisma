@@ -3,17 +3,12 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
-}
-
-model Example {
-  id String @id @default(cuid())
+  provider  = "sqlite"
+  url       = "file:./dev.db"
 }
 
 model PollQuestion {
@@ -22,9 +17,9 @@ model PollQuestion {
 
   endsAt DateTime?
 
-  question String @db.VarChar(5000)
+  question String
 
-  ownerToken String @db.VarChar(255)
+  ownerToken String
 
   options Option[]
   Vote    Vote[]
@@ -36,7 +31,7 @@ model Vote {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  voterToken String @db.VarChar(255)
+  voterToken String
 
   choice     Option       @relation(fields: [choiceId], references: [id])
   choiceId   Int
