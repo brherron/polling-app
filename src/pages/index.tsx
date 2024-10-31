@@ -68,12 +68,7 @@ const Home: NextPage = (props: any) => {
                       );
                     }}
                   >
-                    <Image
-                      src={ShareIcon}
-                      alt="share"
-                      width="24px"
-                      height="24px"
-                    />
+                    <Image src={ShareIcon} alt="share" width={24} height={24} />
                   </button>
                 </div>
                 <div className="text-xl font-bold my-4">

@@ -11,6 +11,10 @@ datasource db {
   url       = "file:./dev.db"
 }
 
+model Example {
+  id String @id @default(cuid())
+}
+
 model PollQuestion {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
